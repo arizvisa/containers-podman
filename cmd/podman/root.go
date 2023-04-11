@@ -78,7 +78,12 @@ var (
 
 	useSyslog      bool
 	requireCleanup = true
-	noOut          = false
+
+	// Defaults for capturing/redirecting the command output since (the) cobra is
+	// global-hungry and doesn't allow you to attach anything that allows us to
+	// transform the noStdout BoolVar to a string that we can assign to useStdout.
+	noStdout  = false
+	useStdout = ""
 )
 
 func init() {
@@ -88,7 +93,7 @@ func init() {
 		syslogHook,
 		earlyInitHook,
 		configHook,
-		noOutHook,
+		stdOutHook,
 	)
 
 	rootFlags(rootCmd, registry.PodmanConfig())
@@ -375,10 +380,28 @@ func loggingHook() {
 	}
 }
 
-func noOutHook() {
-	if noOut {
-		null, _ := os.Open(os.DevNull)
-		os.Stdout = null
+// used for capturing output to some file as per the -out and -noout flags.
+func stdOutHook() {
+
+	// if noStdOut was specified, then assign /dev/null as the standard file for output.
+	if noStdout {
+		useStdout = os.DevNull
+	}
+
+	// if we were given a filename for output, then open that and use it. we end up leaking
+    // the file since it's intended to be in scope as long as our process is running.
+	if useStdout != "" {
+
+		// os.ModeExclusive is p9-only, but technically we sorta want this to work like a
+		// lock in that the output is only available when we've completed the command.
+		if fd, err := os.OpenFile(useStdout, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModeExclusive|os.ModePerm); err == nil {
+			os.Stdout = fd
+
+        // if we couldn't open the file for write, then just bail with an error.
+		} else {
+			fmt.Fprintf(os.Stderr, "unable to open file for standard output: %s\n", err.Error())
+            os.Exit(1)
+		}
 	}
 }
 
@@ -414,7 +437,10 @@ func rootFlags(cmd *cobra.Command, podmanConfig *entities.PodmanConfig) {
 	lFlags.StringVar(&podmanConfig.Identity, identityFlagName, ident, "path to SSH identity file, (CONTAINER_SSHKEY)")
 	_ = cmd.RegisterFlagCompletionFunc(identityFlagName, completion.AutocompleteDefault)
 
-	lFlags.BoolVar(&noOut, "noout", false, "do not output to stdout")
+	// Flags that control or influence any kind of output.
+	lFlags.BoolVar(&noStdout, "noout", false, "do not output to stdout")
+	lFlags.StringVar(&useStdout, "out", "", "send output to file")
+
 	lFlags.BoolVarP(&podmanConfig.Remote, "remote", "r", registry.IsRemote(), "Access remote Podman service")
 	pFlags := cmd.PersistentFlags()
 	if registry.IsRemote() {
