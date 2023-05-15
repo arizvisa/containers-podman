@@ -188,6 +188,24 @@ load helpers
     is "$output" "" "output should be empty"
 }
 
+@test "podman stop --out will save parameter to file" {
+    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+
+    run_podman run --rm --name stopme -d $IMAGE top
+    container="$output"
+
+    # podman-stop will just write whatever the parameter is, so instead
+    # of acting like a glorified echo we verify the name matches the id.
+    run_podman container inspect --format '{{.Id}}' stopme
+    is "$output" "$container" "container id should match"
+
+    # and then we can do our actual test using the id.
+    run_podman --out $filename stop -t 0 "$container"
+    is "$output" "" "output should be empty"
+    ! read -d '' contents <"$filename"
+    is "$contents" "$container" "output should match container id"
+}
+
 @test "podman stop, with --rm container" {
     OCIDir=/run/$(podman_runtime)
 

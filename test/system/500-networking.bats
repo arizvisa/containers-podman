@@ -400,6 +400,18 @@ load helpers.network
     is "$output" "" "output should be empty"
 }
 
+@test "podman network create with --out will echo its parameter" {
+    is_rootless || skip "only meaningful for rootless"
+    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+
+    local mynetname=testnet-$(random_string 10)
+    run_podman --out $filename network create $mynetname
+    is "$output" "" "output should be empty"
+
+    ! read -d '' contents <"$filename"
+    is "$contents" "$mynetname"
+}
+
 @test "podman ipv6 in /etc/resolv.conf" {
     ipv6_regex='([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4})(%\w+)?'
 
