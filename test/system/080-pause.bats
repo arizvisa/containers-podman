@@ -58,6 +58,40 @@ load helpers
     run_podman 125 unpause $cname
 }
 
+@test "podman pause echos its parameter" {
+    is_rootless && ! is_cgroupsv2 && skip "'podman pause' (rootless) only works with cgroups v2"
+    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+
+    # mostly copypasta from the first test
+    cname=$(random_string 10)
+    run_podman --out /dev/null run -d --name $cname $IMAGE \
+               sh -c 'while :;do date +%s;sleep 1;done'
+    is "$output" "" "output should be empty"
+
+    # now we can extract the id from the container name, and then wait for some output.
+    run_podman container inspect --format '{{.Id}}' $cname
+    cid="$output"
+    wait_for_output '[0-9]\{10,\}' $cid
+
+    # pause the container and then check that its output matches the parameter.
+    run_podman --out $filename pause $cid
+    is "$output" "" "output should be empty"
+    ! read -d '' contents <"$filename"
+    is "$cid" "$contents" "output should match the container id"
+    sleep 1
+
+    # now we can unpause the container and verify that it echos the parameter again.
+    run_podman --out $filename unpause $cid
+    is "$output" "" "output should be empty"
+    ! read -d '' contents <"$filename"
+    is "$cid" "$contents" "output should match the container id"
+
+    run_podman --out $filename rm -t 0 -f $cname
+    is "$output" "" "output should be empty"
+    ! read -d '' contents <"$filename"
+    is "$cname" "$contents" "output should match the parameter"
+}
+
 @test "podman unpause --all" {
     if is_rootless && ! is_cgroupsv2; then
         skip "'podman pause' (rootless) only works with cgroups v2"
