@@ -383,7 +383,6 @@ func loggingHook() {
 
 // used for capturing output to some file as per the -out and -noout flags.
 func stdOutHook() {
-
 	// if noStdOut was specified, then assign /dev/null as the standard file for output.
 	if noStdout {
 		useStdout = os.DevNull
