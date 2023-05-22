@@ -202,8 +202,7 @@ load helpers
     # and then we can do our actual test using the id.
     run_podman --out $filename stop -t 0 "$container"
     is "$output" "" "output should be empty"
-    ! read -d '' contents <"$filename"
-    is "$contents" "$container" "output should match container id"
+    is "$(<$filename)" "$container" "output should match container id"
 }
 
 @test "podman stop, with --rm container" {

@@ -408,8 +408,7 @@ load helpers.network
     run_podman --out $filename network create $mynetname
     is "$output" "" "output should be empty"
 
-    ! read -d '' contents <"$filename"
-    is "$contents" "$mynetname"
+    is "$(<$filename)" "$mynetname"
 }
 
 @test "podman ipv6 in /etc/resolv.conf" {

@@ -76,20 +76,17 @@ load helpers
     # pause the container and then check that its output matches the parameter.
     run_podman --out $filename pause $cid
     is "$output" "" "output should be empty"
-    ! read -d '' contents <"$filename"
-    is "$cid" "$contents" "output should match the container id"
+    is "$cid" "$(<$filename)" "output should match the container id"
     sleep 1
 
     # now we can unpause the container and verify that it echos the parameter again.
     run_podman --out $filename unpause $cid
     is "$output" "" "output should be empty"
-    ! read -d '' contents <"$filename"
-    is "$cid" "$contents" "output should match the container id"
+    is "$cid" "$(<$filename)" "output should match the container id"
 
     run_podman --out $filename rm -t 0 -f $cname
     is "$output" "" "output should be empty"
-    ! read -d '' contents <"$filename"
-    is "$cname" "$contents" "output should match the parameter"
+    is "$cname" "$(<$filename)" "output should match the parameter"
 }
 
 @test "podman unpause --all" {

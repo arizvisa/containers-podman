@@ -517,11 +517,10 @@ json-file | f
     run_podman --out $filename run -d --name test $IMAGE echo hola
     is "$output" "" "output should be redirected"
     run_podman wait test
-    ! read -d '' contents <"$filename"
 
     # compare the container id against the one in the file
     run_podman container inspect --format '{{.Id}}' test
-    is "$output" "$contents" "container id should match"
+    is "$output" "$(<$filename)" "container id should match"
 
     run_podman --out /dev/null rm test
     is "$output" "" "output should be empty"
@@ -533,11 +532,10 @@ json-file | f
     # first we'll need to run something, write its output to a file, and then read its contents.
     run_podman --out $filename create --name test $IMAGE echo hola
     is "$output" "" "output should be redirected"
-    ! read -d '' contents <"$filename"
 
     # compare the container id against the one in the file
     run_podman container inspect --format '{{.Id}}' test
-    is "$output" "$contents" "container id should match"
+    is "$output" "$(<$filename)" "container id should match"
 
     run_podman --out /dev/null rm test
     is "$output" "" "output should be empty"

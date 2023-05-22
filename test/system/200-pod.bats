@@ -347,7 +347,7 @@ EOF
     # copypasta
     run_podman --out $filename pod create --name $pod_name --infra-name "$infra_name" --infra-image "$infra_image"
     is "$output" "" "output from pod create should be empty"
-    ! read -d '' contents <"$filename"
+    contents="$(<$filename)"
 
     # next we need to get the pod id from the name that was used
     run_podman pod inspect $pod_name --format '{{.Id}}'
@@ -363,8 +363,7 @@ EOF
 
     run_podman --out $filename pod rm -f $pod_name
     is "$output" "" "output from pod rm should be empty"
-    ! read -d '' contents <"$filename"
-    is "$pod_name" "$contents" "output of podman pod rm should echo its pod name parameter."
+    is "$pod_name" "$(<$filename)" "output of podman pod rm should echo its pod name parameter."
 
     run_podman --out /dev/null rmi $infra_image
     is "$output" "" "output from rmi should be empty"
