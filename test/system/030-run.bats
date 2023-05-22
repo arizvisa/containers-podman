@@ -511,31 +511,31 @@ json-file | f
 }
 
 @test "podman --out run should save the container id" {
-    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+    outfile=${PODMAN_TMPDIR}/out-results
 
     # first we'll need to run something, write its output to a file, and then read its contents.
-    run_podman --out $filename run -d --name test $IMAGE echo hola
+    run_podman --out $outfile run -d --name test $IMAGE echo hola
     is "$output" "" "output should be redirected"
     run_podman wait test
 
     # compare the container id against the one in the file
     run_podman container inspect --format '{{.Id}}' test
-    is "$output" "$(<$filename)" "container id should match"
+    is "$output" "$(<$outfile)" "container id should match"
 
     run_podman --out /dev/null rm test
     is "$output" "" "output should be empty"
 }
 
 @test "podman --out create should save the container id" {
-    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+    outfile=${PODMAN_TMPDIR}/out-results
 
     # first we'll need to run something, write its output to a file, and then read its contents.
-    run_podman --out $filename create --name test $IMAGE echo hola
+    run_podman --out $outfile create --name test $IMAGE echo hola
     is "$output" "" "output should be redirected"
 
     # compare the container id against the one in the file
     run_podman container inspect --format '{{.Id}}' test
-    is "$output" "$(<$filename)" "container id should match"
+    is "$output" "$(<$outfile)" "container id should match"
 
     run_podman --out /dev/null rm test
     is "$output" "" "output should be empty"

@@ -189,7 +189,7 @@ load helpers
 }
 
 @test "podman stop --out will save parameter to file" {
-    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+    outfile=${PODMAN_TMPDIR}/out-results
 
     run_podman run --rm --name stopme -d $IMAGE top
     container="$output"
@@ -200,9 +200,9 @@ load helpers
     is "$output" "$container" "container id should match"
 
     # and then we can do our actual test using the id.
-    run_podman --out $filename stop -t 0 "$container"
+    run_podman --out $outfile stop -t 0 "$container"
     is "$output" "" "output should be empty"
-    is "$(<$filename)" "$container" "output should match container id"
+    is "$(<$outfile)" "$container" "output should match container id"
 }
 
 @test "podman stop, with --rm container" {

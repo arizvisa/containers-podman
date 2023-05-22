@@ -402,13 +402,13 @@ load helpers.network
 
 @test "podman network create with --out will echo its parameter" {
     is_rootless || skip "only meaningful for rootless"
-    filename=$(mktemp -p ${BATS_TEST_TMPDIR} contoutXXXXXXXX)
+    outfile=${PODMAN_TMPDIR}/out-results
 
     local mynetname=testnet-$(random_string 10)
-    run_podman --out $filename network create $mynetname
+    run_podman --out $outfile network create $mynetname
     is "$output" "" "output should be empty"
 
-    is "$(<$filename)" "$mynetname"
+    is "$(<$outfile)" "$mynetname"
 }
 
 @test "podman ipv6 in /etc/resolv.conf" {

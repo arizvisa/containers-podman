@@ -340,30 +340,30 @@ EOF
 }
 
 @test "podman pod create should write its pod id to the file specified by --out" {
-    filename=$(mktemp -p ${BATS_TEST_TMPDIR} stdoutXXXXXXXX)
+    outfile=${PODMAN_TMPDIR}/out-results
     local infra_image="k8s.gcr.io/pause:3.5"
     local pod_name="$(random_string 10 | tr A-Z a-z)"
 
     # copypasta
-    run_podman --out $filename pod create --name $pod_name --infra-name "$infra_name" --infra-image "$infra_image"
+    run_podman --out $outfile pod create --name $pod_name --infra-name "$infra_name" --infra-image "$infra_image"
     is "$output" "" "output from pod create should be empty"
-    contents="$(<$filename)"
+    contents="$(<$outfile)"
 
     # next we need to get the pod id from the name that was used
     run_podman pod inspect $pod_name --format '{{.Id}}'
     is "$output" "$contents" "output should the pod id that was emitted during creation"
 
     # enumerate the pods and find the one matching our name
-    run_podman --out $filename pod ls --format json
+    run_podman --out $outfile pod ls --format json
     is "$output" "" "output from pod ls should be empty"
 
     # use the output file to select an entry matching the desired id..
     jq -r --arg id $contents '.[] | select(.Id == $id) | .Name'.
     is "$output" "$pod_name" "pod name for the created pod with the retrieved id"
 
-    run_podman --out $filename pod rm -f $pod_name
+    run_podman --out $outfile pod rm -f $pod_name
     is "$output" "" "output from pod rm should be empty"
-    is "$pod_name" "$(<$filename)" "output of podman pod rm should echo its pod name parameter."
+    is "$pod_name" "$(<$outfile)" "output of podman pod rm should echo its pod name parameter."
 
     run_podman --out /dev/null rmi $infra_image
     is "$output" "" "output from rmi should be empty"

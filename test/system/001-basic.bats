@@ -270,11 +270,11 @@ run_podman --noout system connection ls
     is "$version_key" "Version" "Version line"
 
     # now we can output everything as some json.
-    filename=$(mktemp -p ${BATS_TEST_TMPDIR} veroutXXXXXXXX)
-    run_podman --out $filename version -f json
+    outfile=${PODMAN_TMPDIR}/out-results
+    run_podman --out $outfile version -f json
 
     # extract the version from the file.
-    run jq -r --arg field "$version_key" '.Client | .[$field]' $filename
+    run jq -r --arg field "$version_key" '.Client | .[$field]' $outfile
     is "$output" ${version_number} "Version matches"
 }
 
