@@ -358,7 +358,7 @@ EOF
     is "$output" "" "output from pod ls should be empty"
 
     # use the output file to select an entry matching the desired id..
-    jq -r --arg id $contents '.[] | select(.Id == $id) | .Name'.
+    jq -r --arg id $contents '.[] | select(.Id == $id) | .Name' $outfile
     is "$output" "$pod_name" "pod name for the created pod with the retrieved id"
 
     run_podman --out $outfile pod rm -f $pod_name

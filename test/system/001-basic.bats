@@ -250,7 +250,7 @@ run_podman --noout system connection ls
     1>/dev/null run_podman 125
     last_line_index=$(( "${#lines[@]}" - 1 ))
     error_msg=${lines[$last_line_index]}
-    is "${error_msg}" "Error: missing command 'podman COMMAND'" "output should only contain the missing command error message"
+    is "${error_msg}" "Error: missing command '[^ ]\+ COMMAND'" "output should only contain the missing command error message"
 
     # Next we run with --noout to ensure that the entire output matches the "missing command" message.
     run_podman 125 --noout
