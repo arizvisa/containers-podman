@@ -269,8 +269,9 @@ run_podman --noout system connection ls
     IFS=: read version_key version_number <<<"${lines[0]}"
     is "$version_key" "Version" "Version line"
 
-    # now we can output everything as some json.
-    outfile=${PODMAN_TMPDIR}/out-results
+    # now we can output everything as some json. we can't use PODMAN_TMPDIR since basic_setup
+    # isn't being used in setup() due to being unable to trust podman-images or podman-rm.
+    outfile=$(mktemp -p ${BATS_TEST_TMPDIR} veroutXXXXXXXX)
     run_podman --out $outfile version -f json
 
     # extract the version from the file.
