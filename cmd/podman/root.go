@@ -436,8 +436,11 @@ func rootFlags(cmd *cobra.Command, podmanConfig *entities.PodmanConfig) {
 	_ = cmd.RegisterFlagCompletionFunc(identityFlagName, completion.AutocompleteDefault)
 
 	// Flags that control or influence any kind of output.
+	outFlagName := "out"
+	lFlags.StringVar(&useStdout, outFlagName, "", "send output to file")
+	_ = cmd.RegisterFlagCompletionFunc(outFlagName, completion.AutocompleteDefault)
+
 	lFlags.BoolVar(&noStdout, "noout", false, "do not output to stdout")
-	lFlags.StringVar(&useStdout, "out", "", "send output to file")
 
 	lFlags.BoolVarP(&podmanConfig.Remote, "remote", "r", registry.IsRemote(), "Access remote Podman service")
 	pFlags := cmd.PersistentFlags()
