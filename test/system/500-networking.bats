@@ -401,7 +401,6 @@ load helpers.network
 }
 
 @test "podman network create with --out will echo its parameter" {
-    is_rootless || skip "only meaningful for rootless"
     outfile=${PODMAN_TMPDIR}/out-results
 
     local mynetname=testnet-$(random_string 10)
