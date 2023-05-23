@@ -347,23 +347,23 @@ EOF
     # copypasta
     run_podman --out $outfile pod create --name $pod_name --infra-name "$infra_name" --infra-image "$infra_image"
     is "$output" "" "output from pod create should be empty"
-    contents="$(<$outfile)"
+    expected_id="$(<$outfile)"
 
     # next we need to get the pod id from the name that was used
     run_podman pod inspect $pod_name --format '{{.Id}}'
-    is "$output" "$contents" "output should the pod id that was emitted during creation"
+    is "$output" "$expected_id" "output should the pod id that was emitted during creation"
 
     # enumerate the pods and find the one matching our name
     run_podman --out $outfile pod ls --format json
     is "$output" "" "output from pod ls should be empty"
 
     # use the output file to select an entry matching the desired id..
-    jq -r --arg id $contents '.[] | select(.Id == $id) | .Name' $outfile
-    is "$output" "$pod_name" "pod name for the created pod with the retrieved id"
+    created_name=$(jq -r --arg id $expected_id '.[] | select(.Id == $id) | .Name' $outfile)
+    is "$created_name" "$pod_name" "pod name for the created pod with the retrieved id"
 
     run_podman --out $outfile pod rm -f $pod_name
     is "$output" "" "output from pod rm should be empty"
-    is "$pod_name" "$(<$outfile)" "output of podman pod rm should echo its pod name parameter."
+    is "$expected_id" "$(<$outfile)" "output of podman pod rm should emit its id."
 
     run_podman --out /dev/null rmi $infra_image
     is "$output" "" "output from rmi should be empty"
