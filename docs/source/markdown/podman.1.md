@@ -99,6 +99,9 @@ and "$HOME/.config/cni/net.d" as rootless. CNI is deprecated from Podman in the 
 
 Redirect stdout to /dev/null. This command prevents all stdout from the Podman command. The **--noout**  option is not block stderr or stdout from containers.
 
+#### **--out**=*path*
+Redirect stdout to the specified path. This command allows redirecting all stdout from the Podman command which can be used to capture its output directly to a file. It can also be used to suppress output by specifying /dev/null as the path. The **--out** option will not affect stderr or stdout from containers.
+
 #### **--remote**, **-r**
 When true, access to the Podman service is remote. Defaults to false.
 Settings can be modified in the containers.conf file. If the CONTAINER_HOST
