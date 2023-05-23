@@ -88,13 +88,15 @@ var (
 )
 
 func init() {
-	// Hooks are called before PersistentPreRunE()
+	// Hooks are called before PersistentPreRunE(). These hooks affect global
+	// state and are executed after processing the command-line, but before
+	// actually running the command.
 	cobra.OnInitialize(
+		stdOutHook, // Caution, this hook redirects stdout and output from any following hooks may be affected.
 		loggingHook,
 		syslogHook,
 		earlyInitHook,
 		configHook,
-		stdOutHook,
 	)
 
 	rootFlags(rootCmd, registry.PodmanConfig())
@@ -381,7 +383,7 @@ func loggingHook() {
 	}
 }
 
-// used for capturing output to some file as per the -out and -noout flags.
+// used for capturing podman's formatted output to some file as per the -out and -noout flags.
 func stdOutHook() {
 	// if noStdOut was specified, then assign /dev/null as the standard file for output.
 	if noStdout {
