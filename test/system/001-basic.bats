@@ -239,22 +239,11 @@ run_podman --noout system connection ls
     is "$output" "" "output should be empty"
 }
 
-# Tests --noout to ensure that the output fd can be written to. This
-# gets accomplished by ensuring that the first line and the last line
-# of podman's output matches regardless of the --noout option.
+# Tests --noout to ensure that the output fd can be written to.
 @test "podman --noout is actually writing to /dev/null" {
-
-    # First we run without any parameters to capture the last line written to stderr.
-    # XXX: We should be using --separate-stderr to capture $stderr, but that requires us
-    #      to have bats v1.5.0 as the minimum version and fixing run_podman to use it.
-    1>/dev/null run_podman 125
-    last_line_index=$(( "${#lines[@]}" - 1 ))
-    error_msg=${lines[$last_line_index]}
-    is "${error_msg}" "Error: missing command '[^ ]\+ COMMAND'" "output should only contain the missing command error message"
-
-    # Next we run with --noout to ensure that the entire output matches the "missing command" message.
-    run_podman 125 --noout
-    assert "${lines[0]}" == "$error_msg" "output should only contain the missing command error message"
+    skip_if_remote "unshare only works locally"
+    run_podman --noout unshare ls
+    is "$output" "" "output should be empty"
 }
 
 @test "podman version --out writes matching version to a json" {
