@@ -242,6 +242,7 @@ run_podman --noout system connection ls
 # Tests --noout to ensure that the output fd can be written to.
 @test "podman --noout is actually writing to /dev/null" {
     skip_if_remote "unshare only works locally"
+    skip_if_not_rootless "unshare requires rootless"
     run_podman --noout unshare ls
     is "$output" "" "output should be empty"
 }
