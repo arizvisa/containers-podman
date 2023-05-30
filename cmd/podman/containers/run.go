@@ -150,17 +150,17 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// First set the default streams before they get modified by any flags.
+	runOpts.OutputStream = os.Stdout
+	runOpts.InputStream = os.Stdin
+	runOpts.ErrorStream = os.Stderr
+
 	// If -i is not set, clear stdin
 	if !cliVals.Interactive {
 		runOpts.InputStream = nil
 	}
 
 	passthrough := cliVals.LogDriver == define.PassthroughLogging
-
-	// First set the default streams before they get modified by any flags.
-	runOpts.OutputStream = os.Stdout
-	runOpts.InputStream = os.Stdin
-	runOpts.ErrorStream = os.Stderr
 
 	// If attach is set, clear stdin/stdout/stderr and only attach requested
 	if cmd.Flag("attach").Changed {
