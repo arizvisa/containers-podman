@@ -437,7 +437,7 @@ func rootFlags(cmd *cobra.Command, podmanConfig *entities.PodmanConfig) {
 
 	// Flags that control or influence any kind of output.
 	outFlagName := "out"
-	lFlags.StringVar(&useStdout, outFlagName, "", "send output to file")
+	lFlags.StringVar(&useStdout, outFlagName, "", "Send output (stdout) from podman to a file")
 	_ = cmd.RegisterFlagCompletionFunc(outFlagName, completion.AutocompleteDefault)
 
 	lFlags.BoolVar(&noStdout, "noout", false, "do not output to stdout")
